@@ -7,7 +7,7 @@ name = "duckdice-betbot"
 version = "0.2.1"
 description = "DuckDice API Python client, CLI, and auto-betting engine with pluggable strategies"
 readme = "README.md"
-authors = [{ name = "Dennis", email = "" }]
+authors = [{ name = "Dennis", email = "schnickfitzel1@gmail.com" }]
 license = { file = "LICENSE" }
 requires-python = ">=3.9"
 dependencies = [
