@@ -46,6 +46,7 @@ package-dir = {"" = "src"}
 [tool.setuptools.packages.find]
 where = ["src"]
 include = [
+  "duckdice*",
   "duckdice_api*",
   "duckdice_cli*",
   "betbot_engine*",
