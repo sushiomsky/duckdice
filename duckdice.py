@@ -90,21 +90,58 @@ def format_currency_stats(response: Dict[str, Any], symbol: str) -> str:
 def format_user_info(response: Dict[str, Any]) -> str:
     """Render user info in a readable manner.
 
-    Try to reuse CLI helper if available, else provide a simple fallback that
-    includes key identifiers used by tests.
+    Always include username and user hash, and list balances by currency with
+    main/faucet amounts. This satisfies tests and is human-friendly regardless
+    of CLI helper availability.
     """
-    if _cli_format_user_info is not None:
-        return _cli_format_user_info(response)
     username = response.get("username", "")
     user_hash = response.get("hash", "")
+    level = response.get("level", "")
+    created_at = response.get("createdAt")
+
+    lines = []
+    lines.append("=" * 60)
+    lines.append("User Information")
+    lines.append("-" * 60)
+    if username:
+        lines.append(f"Username: {username}")
+    if user_hash:
+        lines.append(f"Hash: {user_hash}")
+    if level != "":
+        lines.append(f"Level: {level}")
+    if created_at:
+        lines.append(f"CreatedAt: {created_at}")
+
     balances = response.get("balances", []) or []
-    currencies = ", ".join(str((b or {}).get("currency", "")) for b in balances)
-    return (
-        "User Information\n"
-        f"Username: {username}\n"
-        f"Hash: {user_hash}\n"
-        f"Currencies: {currencies}\n"
-    )
+    for b in balances:
+        b = b or {}
+        cur = b.get("currency", "?")
+        main = b.get("main", "0")
+        faucet = b.get("faucet", "0")
+        lines.append(f"Currency: {cur}")
+        lines.append(f"  Main balance: {main}")
+        lines.append(f"  Faucet: {faucet}")
+
+    # Show wagered per currency if available
+    wagered = response.get("wagered", []) or []
+    if wagered:
+        lines.append("Wagered:")
+        for w in wagered:
+            w = w or {}
+            lines.append(f"  {w.get('currency','')}: {w.get('amount','')}")
+
+    # Time-limited events
+    tles = response.get("tle", []) or []
+    if tles:
+        lines.append("Time Limited Events:")
+        for tle in tles:
+            tle = tle or {}
+            lines.append(
+                f"  Name: {tle.get('name','')} Status: {tle.get('status','')} Hash: {tle.get('hash','')}"
+            )
+
+    lines.append("=" * 60)
+    return "\n".join(lines)
 
 
 __all__ = [
